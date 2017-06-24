@@ -5,56 +5,36 @@ import (
 	"strconv"
 	"github.com/parlihpb/neuralnet/models"
 	"fmt"
+	"log"
+	"bufio"
+	"strings"
 )
 
+//maybe could use a defer to do the backtracing? maybe not as it would need to wait until the full trace through to get the value upon which to calculate error in the first nodes.
 func main() {
 	fmt.Println("Hello, world")
 
 	networkLength, _ := strconv.Atoi(os.Args[1])
 	networkHeight, _ := strconv.Atoi(os.Args[2])
-	//for index := 0; networkLength < networkLength; index++ {
-	//	column := models.Column{}
-	//	columns[index] = column
-	//	lineSegment.ForwardNode = outputNode
-	//}
+	fileLocation := os.Args[3]
+	file, error := os.Open(fileLocation)
 
-	previousNodes := make([]models.Node, networkHeight)
-	columns := make([]models.Column, networkLength)
-	//initialization of input nodes
-	for index := 0; index < networkHeight; index++ {
-		previousNodes[index] = models.Node{}
+	if error != nil {
+		log.Fatal(error)
+	}
+	defer file.Close()
+
+	lineScanner := bufio.NewScanner(file)
+
+	for lineScanner.Scan() {
+
+		text := lineScanner.Text()
+		fields := strings.Fields(text)
+		fmt.Println(fields)
+		fmt.Println("break")
 	}
 
-	//for each bit of length, make a new column
-	for index := 0; index < networkLength; index++ {
-		column := models.Column{}
-
-
-		currentNodes := make([]models.Node, networkHeight)
-		for _, element := range previousNodes {
-			for index := 0; index < networkHeight; index++ {
-				newNode := models.Node{}
-				lineSegment := models.LineSegment{ForwardNode: newNode, BackwardNode: element, LineWeight: 12}
-				column.Column = append(column.Column, lineSegment)
-				currentNodes[index] = newNode
-			}
-
-		}
-		columns[index] = column
-		previousNodes = currentNodes
-	}
-
-	//initialize output column
-	outputColumn := models.Column{}
-	for index := 0; index < networkLength; index++ {
-		newNode := models.Node{}
-		segments := columns[index].Column
-
-		for _, element := range segments {
-			segment := models.LineSegment{ForwardNode: newNode, BackwardNode: element.ForwardNode, LineWeight: 12}
-			outputColumn.Column = append(outputColumn.Column, segment)
-		}
-	}
-
+	//initializeNetwork(networkHeight, networkLength)
+	models.NewNetwork(networkHeight, networkLength, 5, 1)
 
 }
